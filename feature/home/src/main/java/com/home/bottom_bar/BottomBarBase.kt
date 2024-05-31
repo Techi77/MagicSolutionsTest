@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.core.ui.theme.MagicDownloaderTheme
+import com.social_list.composable.DottedBoxForTutorial
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -82,7 +83,7 @@ private fun BottomBarBase(
     onClick: (item: AppBottomBarItem, currentRoute: String?) -> Unit,
 ) {
     val tabsValue by tabs.collectAsStateWithLifecycle(initialValue = emptyList())
-
+    val isTutorialVisible = true
     val heightAnimation by animateDpAsState(
         targetValue = if (isVisible) 60.dp else 0.dp,
         label = "BottomBarHeightAnimation",
@@ -113,6 +114,7 @@ private fun BottomBarBase(
                             modifier = Modifier
                                 .requiredHeight(height = 24.dp)
                         )
+                        if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
 
                         if (item == AppBottomBarItem.Tabs) {
                             val count = when {
@@ -146,22 +148,6 @@ private fun BottomBarBase(
                         }
                     }
 
-                    /*Column(
-                        verticalArrangement = Arrangement.spacedBy(space = 5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                    ) {
-                        Text(
-                            text = stringResource(id = item.title),
-                            style = TextStyle(
-                                fontSize = 12.sp,
-                                lineHeight = 16.sp,
-                                fontWeight = FontWeight(500),
-                                textAlign = TextAlign.Center,
-                            ),
-                            modifier = Modifier
-                        )
-                    }*/
                 },
                 label = null,
                 colors = NavigationBarItemDefaults.colors(

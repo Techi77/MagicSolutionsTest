@@ -7,13 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +56,8 @@ internal fun ScreenV3V4(
     val scrollState = rememberScrollState()
     var isShowLogo by remember { mutableStateOf(true) }
 
+    val isTutorialVisible = true
+
     Content {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -66,30 +69,53 @@ internal fun ScreenV3V4(
                 .padding(horizontal = 16.dp)
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
-                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
                 modifier = Modifier
-                    .align(alignment = Alignment.End)
+                    .fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
+                Box(
+                    contentAlignment = Alignment.TopStart,
                     modifier = Modifier
-                        .size(size = 48.dp)
-                        .clip(shape = MaterialTheme.shapes.extraLarge)
-                        .clickableSingle { }
-                        .padding(all = 4.dp)
-                        .padding(all = 6.dp)
-                        .border(width = 2.dp, shape = CircleShape, color = Color(0xFFFF9901))
-                )
-
-                MagicMenu(
-                    items = listOf(
-                        MagicMenuItem.Tutorial to { },
-                        MagicMenuItem.HomeManual to { },
+                        .width(intrinsicSize = IntrinsicSize.Min)
+                        .height(intrinsicSize = IntrinsicSize.Min)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_russian_flag),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier
+                            .size(size = 48.dp)
+                            .padding(all = 4.dp)
+                            .padding(all = 6.dp)
+                            .border(width = 2.dp, shape = CircleShape, color = Color(0xFFFF9901))
+                            .clip(CircleShape)
                     )
-                )
+                    if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .size(size = 48.dp)
+                            .clip(shape = MaterialTheme.shapes.extraLarge)
+                            .clickableSingle { }
+                            .padding(all = 4.dp)
+                            .padding(all = 6.dp)
+                            .border(width = 2.dp, shape = CircleShape, color = Color(0xFFFF9901))
+                    )
+
+                    MagicMenu(
+                        items = listOf(
+                            MagicMenuItem.Tutorial to { },
+                            MagicMenuItem.HomeManual to { },
+                        )
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(height = 5.dp))
@@ -113,14 +139,10 @@ internal fun ScreenV3V4(
                     type = remember { mutableStateOf(Social.Websites) },
                     placeholderText = R.string.search_or_type_url,
                     readOnly = true,
-                )
-
-                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .clickableSingle(ripple = false) { }
+                        .padding(if (isTutorialVisible) 1.dp else 0.dp)
                 )
+                if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
             }
 
             Spacer(modifier = Modifier.height(height = 14.dp))
@@ -143,7 +165,17 @@ internal fun ScreenV3V4(
 
             Spacer(modifier = Modifier.weight(weight = 6f))
 
-            SocialsV4()
+            Box(
+                contentAlignment = Alignment.TopStart,
+                modifier = Modifier
+                    .height(intrinsicSize = IntrinsicSize.Min)
+            ) {
+                SocialsV4(
+                    modifier = Modifier
+                        .padding(if (isTutorialVisible) 1.dp else 0.dp)
+                )
+                if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+            }
 
             Spacer(modifier = Modifier.height(height = 16.dp))
 
