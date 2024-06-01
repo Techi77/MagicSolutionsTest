@@ -36,7 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.core.ui.theme.MagicDownloaderTheme
-import com.social_list.composable.DottedBoxForTutorial
+import com.social_list.composable.TutorialDottedBox
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -114,7 +114,7 @@ private fun BottomBarBase(
                             modifier = Modifier
                                 .requiredHeight(height = 24.dp)
                         )
-                        if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+                        if (isTutorialVisible && item == AppBottomBarItem.DownloadList) TutorialDottedBox(cornerRadius = 50.dp, height = 48.dp, width = 48.dp)
 
                         if (item == AppBottomBarItem.Tabs) {
                             val count = when {

@@ -90,7 +90,7 @@ internal fun ScreenV3V4(
                             .border(width = 2.dp, shape = CircleShape, color = Color(0xFFFF9901))
                             .clip(CircleShape)
                     )
-                    if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+                    if (isTutorialVisible) TutorialDottedBox(cornerRadius = 50.dp)
                 }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(space = 4.dp),
@@ -142,7 +142,7 @@ internal fun ScreenV3V4(
                     modifier = Modifier
                         .padding(if (isTutorialVisible) 1.dp else 0.dp)
                 )
-                if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+                if (isTutorialVisible) TutorialDottedBox(cornerRadius = 50.dp)
             }
 
             Spacer(modifier = Modifier.height(height = 14.dp))
@@ -174,7 +174,7 @@ internal fun ScreenV3V4(
                     modifier = Modifier
                         .padding(if (isTutorialVisible) 1.dp else 0.dp)
                 )
-                if (isTutorialVisible) DottedBoxForTutorial(cornerRadius = 50.dp)
+                if (isTutorialVisible) TutorialDottedBox(cornerRadius = 24.dp)
             }
 
             Spacer(modifier = Modifier.height(height = 16.dp))
