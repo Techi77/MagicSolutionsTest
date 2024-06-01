@@ -36,7 +36,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.core.ui.theme.MagicDownloaderTheme
-import com.social_list.composable.TutorialDottedBox
+import com.social_list.composable.tutorial.TutorialDottedBox
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

@@ -1,4 +1,4 @@
-package com.social_list.composable
+package com.social_list.composable.tutorial
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

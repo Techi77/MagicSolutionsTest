@@ -48,6 +48,7 @@ import com.core.ui.model.Social
 import com.core.ui.modifier.clickableSingle
 import com.core.ui.theme.MagicDownloaderTheme
 import com.social_list.SocialListEvent
+import com.social_list.composable.tutorial.TutorialDottedBox
 
 @Composable
 internal fun ScreenV3V4(
