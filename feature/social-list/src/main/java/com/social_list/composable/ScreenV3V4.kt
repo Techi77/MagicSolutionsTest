@@ -78,14 +78,14 @@ internal fun ScreenV3V4(
                     modifier = Modifier
                         .width(intrinsicSize = IntrinsicSize.Min)
                         .height(intrinsicSize = IntrinsicSize.Min)
+                        .padding(all = 4.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_russian_flag),
                         contentDescription = null,
                         tint = Color.Unspecified,
                         modifier = Modifier
-                            .size(size = 48.dp)
-                            .padding(all = 4.dp)
+                            .size(size = 42.dp)
                             .padding(all = 6.dp)
                             .border(width = 2.dp, shape = CircleShape, color = Color(0xFFFF9901))
                             .clip(CircleShape)
