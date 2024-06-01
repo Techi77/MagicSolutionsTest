@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -88,6 +89,7 @@ fun ActionButton(
         disabledContentColor = MaterialTheme.colorScheme.onSecondary,
     ),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    maxLines: Int? = null,
     onClick: () -> Unit,
 ) {
     Button(
@@ -101,6 +103,7 @@ fun ActionButton(
         shape = shape,
         colors = colors,
         contentPadding = contentPadding,
+        maxLines = maxLines,
         onClick = onClick,
     )
 }
@@ -126,6 +129,7 @@ private fun Button(
         disabledContentColor = MaterialTheme.colorScheme.onSecondary,
     ),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    maxLines:Int? = null,
     onClick: () -> Unit,
 ) {
     val multipleEventsCutter = remember { MultipleEventsCutter.get() }
@@ -156,6 +160,8 @@ private fun Button(
             Text(
                 text = it,
                 style = textStyle,
+                maxLines = maxLines ?: Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
             )
         }
@@ -176,7 +182,7 @@ private fun Preview() {
                 icon = com.core.R.drawable.ic_download,
             ) {}
 
-            Button(
+            ActionButton(
                 enabled = false,
                 text = stringResource(id = com.core.R.string.downloads),
                 icon = com.core.R.drawable.ic_download,
