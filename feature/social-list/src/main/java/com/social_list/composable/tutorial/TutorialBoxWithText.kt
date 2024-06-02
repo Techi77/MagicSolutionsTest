@@ -5,7 +5,6 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +36,6 @@ fun TutorialBoxWithText(tutorialStep: TutorialStepsDate) {
                 Color.White,
                 shape = RoundedCornerShape(28.dp)
             )
-            .height(intrinsicSize = IntrinsicSize.Min)
             .widthIn(min = 200.dp, max = 330.dp)
             .padding(all = 24.dp)
     ) {

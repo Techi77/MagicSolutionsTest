@@ -82,7 +82,7 @@ internal fun ScreenV3V4(
 
     val isTutorialVisible = true
 
-    val tutorialStep by remember { mutableIntStateOf(1) }
+    val tutorialStep by remember { mutableIntStateOf(4) }
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
     var tutorialBoxCornerRadius by remember { mutableStateOf(24.dp) }
@@ -253,16 +253,22 @@ internal fun ScreenV3V4(
             }
             if (tutorialStep in 1..4) {
                 val tutorialBoxWithTextY = when (tutorialStep) {
-                    1 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
-                    2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
-                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
+                    1,2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
+                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp).value
                     4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
                     else -> 0f
                 }
                 val tutorialArrowY = when (tutorialStep) {
-                    1 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
-                    2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
-                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
+                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
+                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height/2).pxToDp().value
+                    4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
+                    else -> 0f
+                }
+                val tutorialArrowX = when (tutorialStep) {
+                    1, 2 -> (parentWidth / 2 - tutorialDialogWidth / 2)
+                        .toFloat()
+                        .pxToDp().value
+                    3 -> (tutorialBoxOffset.x+tutorialBoxSize.width).pxToDp().value
                     4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
                     else -> 0f
                 }
@@ -275,9 +281,7 @@ internal fun ScreenV3V4(
                             arrowWidth = it.size.width
                         }
                         .offset(
-                            x = (parentWidth / 2 - arrowWidth / 2)
-                                .toFloat()
-                                .pxToDp(),
+                            x = tutorialArrowX.dp,
                             y = tutorialArrowY.dp
                         )
                 )
