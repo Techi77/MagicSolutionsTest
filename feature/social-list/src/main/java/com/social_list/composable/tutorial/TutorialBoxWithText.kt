@@ -76,7 +76,7 @@ enum class TutorialStepsDate(
     STEP_1(R.drawable.ic_arrow_straight, R.string.tutorial_step_1),
     STEP_2(R.drawable.ic_arrow_straight, R.string.tutorial_step_2),
     STEP_3(R.drawable.ic_arrow_diagonal, R.string.tutorial_step_3),
-    STEP_4(R.drawable.ic_arrow_diagonal, R.string.tutorial_step_4)
+    STEP_4(R.drawable.ic_arrow_straight, R.string.tutorial_step_4)
 }
 
 @Preview

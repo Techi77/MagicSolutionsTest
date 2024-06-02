@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.core.R
@@ -83,13 +86,13 @@ internal fun ScreenV3V4(
     val isTutorialVisible = true
 
     val tutorialStep by remember { mutableIntStateOf(4) }
+
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
     var tutorialBoxCornerRadius by remember { mutableStateOf(24.dp) }
 
-    var arrowWidth by remember { mutableIntStateOf(0) }
-    var tutorialDialogWidth by remember { mutableIntStateOf(0) }
-    var parentWidth by remember { mutableIntStateOf(0) }
+    var arrowSize by remember { mutableStateOf(IntSize(0,0)) }
+    var tutorialDialogSize by remember { mutableStateOf(IntSize(0,0)) }
 
     var commonParentModifier = Modifier
         .fillMaxSize()
@@ -104,9 +107,7 @@ internal fun ScreenV3V4(
     commonParentModifier = commonParentModifier.then(Modifier.padding(horizontal = 16.dp))
 
     Content {
-        Box(modifier = Modifier.onGloballyPositioned {
-            parentWidth = it.size.width
-        }) {
+        Box {
             Column(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -252,47 +253,51 @@ internal fun ScreenV3V4(
                 NativeAdView()
             }
             if (tutorialStep in 1..4) {
+                val configuration = LocalConfiguration.current
+                val screenHeight = configuration.screenHeightDp.dp
+                val screenWidth = configuration.screenWidthDp.dp
                 val tutorialBoxWithTextY = when (tutorialStep) {
-                    1,2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
+                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + arrowSize.height.toFloat().pxToDp()+20.dp+22.dp).value
                     3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp).value
-                    4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 95.dp).value
+                    4 -> (screenHeight-(arrowSize.height+tutorialDialogSize.height).toFloat().pxToDp()-20.dp-22.dp).value
+                    else -> 0f
+                }
+                val tutorialArrowX = when (tutorialStep) {
+                    1, 2, 4 -> (screenWidth / 2 - arrowSize.width.toFloat().pxToDp() / 2).value
+                    3 -> (tutorialBoxOffset.x + tutorialBoxSize.width).pxToDp().value
                     else -> 0f
                 }
                 val tutorialArrowY = when (tutorialStep) {
                     1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
-                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height/2).pxToDp().value
-                    4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
+                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height / 2).pxToDp().value
+                    4 -> (screenHeight-arrowSize.height.toFloat().pxToDp()-20.dp).value
                     else -> 0f
                 }
-                val tutorialArrowX = when (tutorialStep) {
-                    1, 2 -> (parentWidth / 2 - tutorialDialogWidth / 2)
-                        .toFloat()
-                        .pxToDp().value
-                    3 -> (tutorialBoxOffset.x+tutorialBoxSize.width).pxToDp().value
-                    4 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
-                    else -> 0f
-                }
-                val tutorialStepDate = TutorialStepsDate.entries[tutorialStep-1]
+                val tutorialStepDate = TutorialStepsDate.entries[tutorialStep - 1]
                 Image(
                     imageVector = ImageVector.vectorResource(id = tutorialStepDate.arrowRes),
                     contentDescription = null,
                     modifier = Modifier
                         .onGloballyPositioned {
-                            arrowWidth = it.size.width
+                            arrowSize = it.size
                         }
                         .offset(
                             x = tutorialArrowX.dp,
                             y = tutorialArrowY.dp
                         )
+                        .scale(
+                            scaleX = if (tutorialStep == 4) -1f else 1f,
+                            scaleY = if (tutorialStep == 4) -1f else 1f
+                        ),
                 )
                 Box(modifier = Modifier
                     .onGloballyPositioned {
-                        tutorialDialogWidth = it.size.width
+                        tutorialDialogSize = it.size
                     }
                     .offset(
-                        x = (parentWidth / 2 - tutorialDialogWidth / 2)
+                        x = (screenWidth / 2 - tutorialDialogSize.width
                             .toFloat()
-                            .pxToDp(),
+                            .pxToDp() / 2),
                         y = tutorialBoxWithTextY.dp
                     )
                 ) {
