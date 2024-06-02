@@ -1,5 +1,7 @@
 package com.social_list.composable.tutorial
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,7 +28,7 @@ import com.core.R
 import com.core.ui.composable.ActionButton
 
 @Composable
-fun TutorialBoxWithText(isLast: Boolean = false) {
+fun TutorialBoxWithText(tutorialStep: TutorialStepsDate) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -40,7 +42,7 @@ fun TutorialBoxWithText(isLast: Boolean = false) {
             .padding(all = 24.dp)
     ) {
         Text(
-            text = "Download videos from social media & popular sites hassle-free!",
+            text = stringResource(tutorialStep.textRes),
             style = TextStyle(
                 fontSize = 18.sp,
                 lineHeight = 24.sp,
@@ -50,7 +52,7 @@ fun TutorialBoxWithText(isLast: Boolean = false) {
                 ),
         )
         ActionButton(
-            text = stringResource(id = if (isLast) R.string.get_started else R.string.next),
+            text = stringResource(id = if (tutorialStep == TutorialStepsDate.entries.last()) R.string.get_started else R.string.next),
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 lineHeight = 21.sp,
@@ -69,8 +71,18 @@ fun TutorialBoxWithText(isLast: Boolean = false) {
     }
 }
 
+enum class TutorialStepsDate(
+    @DrawableRes val arrowRes: Int,
+    @StringRes val textRes: Int,
+) {
+    STEP_1(R.drawable.ic_arrow_straight, R.string.tutorial_step_1),
+    STEP_2(R.drawable.ic_arrow_straight, R.string.tutorial_step_2),
+    STEP_3(R.drawable.ic_arrow_diagonal, R.string.tutorial_step_3),
+    STEP_4(R.drawable.ic_arrow_diagonal, R.string.tutorial_step_4)
+}
+
 @Preview
 @Composable
 fun MyViewPreview() {
-    TutorialBoxWithText()
+    TutorialBoxWithText(TutorialStepsDate.STEP_1)
 }
