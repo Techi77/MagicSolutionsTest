@@ -233,7 +233,7 @@ internal fun ScreenV3V4(
                                         index = 0,
                                         offset = Pair(
                                             coordinates.positionInRoot().x,
-                                            coordinates.positionInRoot().y - toolbar
+                                            coordinates.positionInRoot().y - toolbar*2
                                         ),
                                         size = getSizeByCoordinates(coordinates),
                                         cornerRadius = 50
@@ -276,7 +276,7 @@ internal fun ScreenV3V4(
                                         index = 1,
                                         offset = Pair(
                                             coordinates.positionInRoot().x,
-                                            coordinates.positionInRoot().y - toolbar
+                                            coordinates.positionInRoot().y - toolbar*3
                                         ),
                                         size = getSizeByCoordinates(coordinates),
                                         cornerRadius = 24
