@@ -25,7 +25,7 @@ internal fun SocialListScreen(
 
     var onBackCount by remember { mutableIntStateOf(0) }
 
-    ScreenV3V4 { viewModel.sendEvent(it) }
+    ScreenV3V4 ({ viewModel.sendEvent(it) }, viewModel )
 
     LifecycleListener(
         onStart = { onBackCount = 0 },

@@ -1,5 +1,6 @@
 package com.home.bottom_bar
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -58,6 +59,7 @@ import com.core.ui.theme.MagicDownloaderTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 internal fun BottomBarBase(
     navController: NavController,
@@ -81,7 +83,7 @@ internal fun BottomBarBase(
     val currentRoute = navBackStackEntry?.destination?.parent?.route ?: navBackStackEntry?.destination?.route
     val selectedRoute = getSelectedRoute(currentRoute)
 
-    BottomBarBase(
+BottomBarBase(
         items = items,
         currentRoute = currentRoute,
         selectedRoute = selectedRoute,

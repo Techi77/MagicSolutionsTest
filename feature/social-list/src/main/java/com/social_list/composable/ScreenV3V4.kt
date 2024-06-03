@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +63,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -74,19 +74,18 @@ import com.core.ui.composable.MagicMenuItem
 import com.core.ui.composable.input_link.GlobalInputLinkNew
 import com.core.ui.model.Social
 import com.core.ui.modifier.clickableSingle
-import com.core.ui.theme.MagicDownloaderTheme
 import com.social_list.SocialListEvent
+import com.social_list.SocialListViewModel
 import com.social_list.composable.tutorial.TutorialBoxWithText
 import com.social_list.composable.tutorial.TutorialStepsDate
 
 @Composable
 internal fun ScreenV3V4(
     onClick: (SocialListEvent) -> Unit,
+    viewModel: SocialListViewModel
 ) {
     val scrollState = rememberScrollState()
     var isShowLogo by remember { mutableStateOf(true) }
-
-    val isTutorialVisible = true
 
     var tutorialStep by remember { mutableIntStateOf(0) }
 
@@ -108,6 +107,12 @@ internal fun ScreenV3V4(
             tutorialBoxCornerRadius
         )
     commonParentModifier = commonParentModifier.then(Modifier.padding(horizontal = 16.dp))
+
+    val stepFromViewModel by viewModel.tutorialStep.collectAsState()
+
+    LaunchedEffect(stepFromViewModel) {
+        tutorialStep=stepFromViewModel
+    }
 
     Content {
         val toolbar = WindowInsets.systemBars.asPaddingValues().calculateTopPadding().dpToPx()
@@ -178,7 +183,7 @@ internal fun ScreenV3V4(
                         MagicMenu(
                             items = listOf(
                                 MagicMenuItem.Tutorial to {
-                                    tutorialStep = 1
+                                    viewModel.setTutorialStep(1)
                                 },
                                 MagicMenuItem.HomeManual to { },
                             )
@@ -208,7 +213,6 @@ internal fun ScreenV3V4(
                         placeholderText = R.string.search_or_type_url,
                         readOnly = true,
                         modifier = Modifier
-                            .padding(if (isTutorialVisible) 1.dp else 0.dp)
                             .onGloballyPositioned { coordinates ->
                                 if (tutorialStep == 1) {
                                     tutorialBoxSize = getSizeByCoordinates(coordinates)
@@ -249,7 +253,6 @@ internal fun ScreenV3V4(
                 ) {
                     SocialsV4(
                         modifier = Modifier
-                            .padding(if (isTutorialVisible) 1.dp else 0.dp)
                             .onGloballyPositioned { coordinates ->
                                 if (tutorialStep == 2) {
                                     tutorialBoxSize = getSizeByCoordinates(coordinates)
@@ -322,7 +325,7 @@ internal fun ScreenV3V4(
                 ) {
                     TutorialBoxWithText(tutorialStepDate) {
                         val isLastStep = tutorialStep == TutorialStepsDate.entries.size
-                        tutorialStep = if (isLastStep) 0 else tutorialStep + 1
+                        viewModel.setTutorialStep(if (isLastStep) 0 else tutorialStep + 1)
                     }
                 }
             }
@@ -378,11 +381,11 @@ private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCo
         )
     })
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 private fun ScreenNewPreview() {
     MagicDownloaderTheme {
-        ScreenV3V4 {}
+        ScreenV3V4 ({},)
     }
-}
+}*/
 

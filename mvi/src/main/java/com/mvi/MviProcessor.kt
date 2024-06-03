@@ -8,6 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleEvent> : ViewModel() {
@@ -28,6 +31,8 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
     private val _singleEvent: MutableSharedFlow<SE> = MutableSharedFlow()
     val singleEvent: Flow<SE> = _singleEvent
 
+    private val _tutorialStep = MutableStateFlow(0)
+    val tutorialStep: StateFlow<Int> = _tutorialStep.asStateFlow()
     init {
         Log.d(TAG, "init")
         subscribeToEvent()
@@ -40,6 +45,12 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
             _event.emit(value = event)
         }
     }
+
+    fun setTutorialStep(step: Int) {
+        println("setTutorialStep($step)")
+        _tutorialStep.value = step
+    }
+
 
     fun triggerSingleEvent(singleEvent: SE) {
         Log.d(TAG, "triggerSingleEvent: singleEvent = $singleEvent")
