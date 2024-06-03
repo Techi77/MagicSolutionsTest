@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -85,14 +88,14 @@ internal fun ScreenV3V4(
 
     val isTutorialVisible = true
 
-    var tutorialStep by remember { mutableIntStateOf(2) }
+    var tutorialStep by remember { mutableIntStateOf(0) }
 
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
     var tutorialBoxCornerRadius by remember { mutableStateOf(24.dp) }
 
-    var arrowSize by remember { mutableStateOf(IntSize(0,0)) }
-    var tutorialDialogSize by remember { mutableStateOf(IntSize(0,0)) }
+    var arrowSize by remember { mutableStateOf(IntSize(0, 0)) }
+    var tutorialDialogSize by remember { mutableStateOf(IntSize(0, 0)) }
 
     var commonParentModifier = Modifier
         .fillMaxSize()
@@ -107,6 +110,7 @@ internal fun ScreenV3V4(
     commonParentModifier = commonParentModifier.then(Modifier.padding(horizontal = 16.dp))
 
     Content {
+        val toolbar = WindowInsets.systemBars.asPaddingValues().calculateTopPadding().dpToPx()
         Box {
             Column(
                 verticalArrangement = Arrangement.Top,
@@ -141,7 +145,10 @@ internal fun ScreenV3V4(
                                 .onGloballyPositioned { coordinates ->
                                     if (tutorialStep == 3) {
                                         tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                        tutorialBoxOffset = getOffsetByCoordinates(coordinates)
+                                        tutorialBoxOffset = Offset(
+                                            coordinates.positionInRoot().x,
+                                            coordinates.positionInRoot().y - toolbar
+                                        )
                                         tutorialBoxCornerRadius = 50.dp
                                     }
                                 }
@@ -170,7 +177,9 @@ internal fun ScreenV3V4(
 
                         MagicMenu(
                             items = listOf(
-                                MagicMenuItem.Tutorial to { },
+                                MagicMenuItem.Tutorial to {
+                                    tutorialStep = 1
+                                },
                                 MagicMenuItem.HomeManual to { },
                             )
                         )
@@ -203,7 +212,10 @@ internal fun ScreenV3V4(
                             .onGloballyPositioned { coordinates ->
                                 if (tutorialStep == 1) {
                                     tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                    tutorialBoxOffset = getOffsetByCoordinates(coordinates)
+                                    tutorialBoxOffset = Offset(
+                                        coordinates.positionInRoot().x,
+                                        coordinates.positionInRoot().y - toolbar
+                                    )
                                     tutorialBoxCornerRadius = 50.dp
                                 }
                             }
@@ -241,7 +253,10 @@ internal fun ScreenV3V4(
                             .onGloballyPositioned { coordinates ->
                                 if (tutorialStep == 2) {
                                     tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                    tutorialBoxOffset = getOffsetByCoordinates(coordinates)
+                                    tutorialBoxOffset = Offset(
+                                        coordinates.positionInRoot().x,
+                                        coordinates.positionInRoot().y - toolbar
+                                    )
                                     tutorialBoxCornerRadius = 24.dp
                                 }
                             }
@@ -257,9 +272,13 @@ internal fun ScreenV3V4(
                 val screenHeight = configuration.screenHeightDp.dp
                 val screenWidth = configuration.screenWidthDp.dp
                 val tutorialBoxWithTextY = when (tutorialStep) {
-                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + arrowSize.height.toFloat().pxToDp()+20.dp+22.dp).value
-                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp).value
-                    4 -> (screenHeight-(arrowSize.height+tutorialDialogSize.height).toFloat().pxToDp()-20.dp-22.dp).value
+                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + arrowSize.height.toFloat()
+                        .pxToDp() + 20.dp + 22.dp + toolbar.pxToDp()).value
+
+                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp + toolbar.pxToDp()).value
+                    4 -> (screenHeight - (arrowSize.height + tutorialDialogSize.height).toFloat()
+                        .pxToDp() - 20.dp - 22.dp - toolbar.pxToDp()).value
+
                     else -> 0f
                 }
                 val tutorialArrowX = when (tutorialStep) {
@@ -268,9 +287,9 @@ internal fun ScreenV3V4(
                     else -> 0f
                 }
                 val tutorialArrowY = when (tutorialStep) {
-                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp).value
-                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height / 2).pxToDp().value
-                    4 -> (screenHeight-arrowSize.height.toFloat().pxToDp()-20.dp).value
+                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp + toolbar.pxToDp()).value
+                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height / 2 + toolbar).pxToDp().value
+                    4 -> (screenHeight - arrowSize.height.toFloat().pxToDp() - 20.dp - toolbar.pxToDp()).value
                     else -> 0f
                 }
                 val tutorialStepDate = TutorialStepsDate.entries[tutorialStep - 1]
@@ -301,9 +320,9 @@ internal fun ScreenV3V4(
                         y = tutorialBoxWithTextY.dp
                     )
                 ) {
-                    TutorialBoxWithText(tutorialStepDate){
+                    TutorialBoxWithText(tutorialStepDate) {
                         val isLastStep = tutorialStep == TutorialStepsDate.entries.size
-                        tutorialStep = if(isLastStep) 0 else tutorialStep+1
+                        tutorialStep = if (isLastStep) 0 else tutorialStep + 1
                     }
                 }
             }
@@ -320,14 +339,12 @@ internal fun ScreenV3V4(
 @Composable
 fun Float.pxToDp() = with(LocalDensity.current) { this@pxToDp.toDp() }
 
+@Composable
+fun Dp.dpToPx() = with(LocalDensity.current) { this@dpToPx.toPx() }
+
 private fun getSizeByCoordinates(coordinates: LayoutCoordinates) = Size(
     coordinates.size.width.toFloat(),
     coordinates.size.height.toFloat()
-)
-
-private fun getOffsetByCoordinates(coordinates: LayoutCoordinates) = Offset(
-    coordinates.positionInRoot().x,
-    coordinates.positionInRoot().y
 )
 
 private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCornerRadius: Dp) =
