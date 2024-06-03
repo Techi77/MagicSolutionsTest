@@ -314,8 +314,9 @@ internal fun ScreenV3V4(
                     else -> 0f
                 }
                 val tutorialArrowX = when (tutorialStep) {
-                    0, 1, 3 -> (screenWidth / 2 - arrowSize.width.toFloat().pxToDp() / 2).value
+                    0, 1-> (screenWidth / 2 - arrowSize.width.toFloat().pxToDp() / 2).value
                     2 -> (tutorialBoxOffset.x + tutorialBoxSize.width).pxToDp().value
+                    3 -> (tutorialBoxOffset.x + tutorialBoxSize.width/2-arrowSize.width/2).pxToDp().value
                     else -> 0f
                 }
                 val tutorialArrowY = when (tutorialStep) {
