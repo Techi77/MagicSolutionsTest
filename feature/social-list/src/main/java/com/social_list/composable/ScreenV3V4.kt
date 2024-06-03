@@ -115,9 +115,9 @@ internal fun ScreenV3V4(
             tutorialItemsParameters[tutorialStep]?.cornerRadius?.dp ?: 0.dp
         commonParentModifier =
             commonParentModifier.addTutorialToLayout(
-                tutorialBoxOffset,
-                tutorialBoxSize,
-                tutorialBoxCornerRadius
+                if(tutorialStep!=3)tutorialBoxOffset else Offset(0f,0f),
+                if(tutorialStep!=3)tutorialBoxSize else Size(0f,0f),
+                if(tutorialStep!=3)tutorialBoxCornerRadius else 0.dp
             )
     }
 

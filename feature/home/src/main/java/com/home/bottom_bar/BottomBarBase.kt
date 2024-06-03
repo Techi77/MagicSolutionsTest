@@ -23,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,6 +57,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.core.ui.theme.MagicDownloaderTheme
+import com.mvi.TutorialItemsParameters
 import com.social_list.SocialListViewModel
 import com.social_list.navigation.socialListScreenRoute
 import kotlinx.coroutines.flow.Flow
@@ -85,13 +85,20 @@ internal fun BottomBarBase(
         .toMutableList()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.parent?.route ?: navBackStackEntry?.destination?.route
+    val currentRoute =
+        navBackStackEntry?.destination?.parent?.route ?: navBackStackEntry?.destination?.route
     val selectedRoute = getSelectedRoute(currentRoute)
 
-    if(selectedRoute!=null && selectedRoute==socialListScreenRoute){
+    if (selectedRoute != null && selectedRoute == socialListScreenRoute) {
         val backStackEntry = remember { navController.getBackStackEntry(socialListScreenRoute) }
         val viewModel: SocialListViewModel = koinViewModel(viewModelStoreOwner = backStackEntry)
         val stepFromViewModel by viewModel.tutorialStep.collectAsState()
+
+        val setTutorialItemsParameters: (index: Int, offset: Pair<Float, Float>, size: Pair<Float, Float>, cornerRadius: Int) -> Unit =
+            { index, offset, size, cornerRadius ->
+                viewModel.setTutorialItemsParameters(index, offset, size, cornerRadius)
+            }
+        val tutorialItemsParameters by viewModel.tutorialItemsParameters.collectAsState()
 
         BottomBarBase(
             items = items,
@@ -100,7 +107,9 @@ internal fun BottomBarBase(
             tabs = tabs,
             isVisible = routeList.contains(selectedRoute) && isVisible,
             onClick = onClick,
-            stepFromViewModel = stepFromViewModel
+            stepFromViewModel = stepFromViewModel,
+            setTutorialItemsParameters = setTutorialItemsParameters,
+            tutorialItemsParameters = tutorialItemsParameters
         )
     } else {
         BottomBarBase(
@@ -110,11 +119,9 @@ internal fun BottomBarBase(
             tabs = tabs,
             isVisible = routeList.contains(selectedRoute) && isVisible,
             onClick = onClick,
-            stepFromViewModel = 0
+            stepFromViewModel = 0,
         )
     }
-
-
 
 
 }
@@ -127,7 +134,9 @@ private fun BottomBarBase(
     tabs: Flow<List<Int>>,
     isVisible: Boolean,
     onClick: (item: AppBottomBarItem, currentRoute: String?) -> Unit,
-    stepFromViewModel: Int = -1
+    stepFromViewModel: Int = -1,
+    setTutorialItemsParameters: (index: Int, offset: Pair<Float, Float>, size: Pair<Float, Float>, cornerRadius: Int) -> Unit = { _, _, _, _ -> },
+    tutorialItemsParameters: Array<TutorialItemsParameters?> = Array(size = 4) { _ -> null }
 ) {
     val tabsValue by tabs.collectAsStateWithLifecycle(initialValue = emptyList())
     val heightAnimation by animateDpAsState(
@@ -137,17 +146,26 @@ private fun BottomBarBase(
 
     var tutorialStep by remember { mutableIntStateOf(-1) }
 
-    var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
-    var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
-    val tutorialBoxCornerRadius = 50.dp
+
 
     var commonParentModifier = Modifier
         .fillMaxWidth()
         .background(color = MaterialTheme.colorScheme.onPrimary)
         .navigationBarsPadding()
         .background(color = MaterialTheme.colorScheme.background)
-    if (tutorialStep in 0..3) commonParentModifier =
-        commonParentModifier.addTutorialToLayout(tutorialBoxOffset, tutorialBoxSize, tutorialBoxCornerRadius)
+    if (tutorialStep in 0..3) {
+        val viewModelOffset3dStep = tutorialItemsParameters[3]?.offset ?: Pair(0f, 0f)
+        val viewModelSize3dStep = tutorialItemsParameters[3]?.size ?: Pair(0f, 0f)
+        val tutorialBoxOffset3d = Offset(viewModelOffset3dStep.first, viewModelOffset3dStep.second)
+        val tutorialBoxSize3d = Size(viewModelSize3dStep.first, viewModelSize3dStep.second)
+        val tutorialBoxCornerRadius3d = 50.dp
+        commonParentModifier =
+            commonParentModifier.addTutorialToLayout(
+                if(tutorialStep==3)tutorialBoxOffset3d else Offset(0f,0f),
+                if(tutorialStep==3)tutorialBoxSize3d else Size(0f,0f),
+                if(tutorialStep==3)tutorialBoxCornerRadius3d else 0.dp
+            )
+    }
     commonParentModifier = commonParentModifier.then(
         Modifier
             .padding(bottom = 1.dp)
@@ -157,7 +175,7 @@ private fun BottomBarBase(
     )
 
     LaunchedEffect(stepFromViewModel) {
-        tutorialStep=stepFromViewModel
+        tutorialStep = stepFromViewModel
     }
 
     NavigationBar(
@@ -224,16 +242,19 @@ private fun BottomBarBase(
                 selected = selectedRoute == item.route,
                 onClick = { onClick.invoke(item, currentRoute) },
                 modifier = Modifier.onGloballyPositioned { coordinates ->
-                    if (tutorialStep == 3 && item == AppBottomBarItem.DownloadList) {
-                        tutorialBoxSize = Size(
-                            coordinates.size.height.toFloat()-5F,
-                            coordinates.size.height.toFloat()-5F
+                    if (tutorialItemsParameters[3] == null && item == AppBottomBarItem.DownloadList) {
+                        setTutorialItemsParameters.invoke(
+                            3,
+                            Pair(
+                                coordinates.positionInRoot().x + coordinates.size.height.toFloat() / 4,
+                                4f
+                            ),
+                            Pair(
+                                coordinates.size.height.toFloat() - 5F,
+                                coordinates.size.height.toFloat() - 5F
+                            ),
+                            24
                         )
-                        tutorialBoxOffset = Offset(
-                            coordinates.positionInRoot().x+coordinates.size.height.toFloat()/4,
-                            4f
-                        )
-
                     }
                 },
             )
@@ -267,8 +288,8 @@ private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCo
             color = Color.White,
             style = stroke,
             cornerRadius = CornerRadius(boxCornerRadius.toPx()),
-            topLeft = Offset(boxOffset.x-strokeWidth,boxOffset.y-strokeWidth),
-            size = Size(boxSize.width+strokeWidth*2,boxSize.height+strokeWidth*2)
+            topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
+            size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
         )
     })
 
