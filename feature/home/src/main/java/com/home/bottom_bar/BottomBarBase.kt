@@ -246,7 +246,7 @@ private fun BottomBarBase(
                         setTutorialItemsParameters.invoke(
                             3,
                             Pair(
-                                coordinates.positionInRoot().x + coordinates.size.height.toFloat() / 4,
+                                coordinates.positionInRoot().x + coordinates.size.height.toFloat() / 8,
                                 4f
                             ),
                             Pair(
