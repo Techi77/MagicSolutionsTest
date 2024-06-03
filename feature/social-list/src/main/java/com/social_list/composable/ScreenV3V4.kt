@@ -1,5 +1,7 @@
 package com.social_list.composable
 
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -49,7 +51,6 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -113,12 +114,44 @@ internal fun ScreenV3V4(
         val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
         val tutorialBoxCornerRadius =
             tutorialItemsParameters[tutorialStep]?.cornerRadius?.dp ?: 0.dp
+        val boxOffset = if(tutorialStep!=3)tutorialBoxOffset else Offset(0f,0f)
+        val boxSize = if(tutorialStep!=3)tutorialBoxSize else Size(0f,0f)
+        val boxCornerRadius = if(tutorialStep!=3)tutorialBoxCornerRadius else 0.dp
+
+        val color = remember { Animatable(Color.Transparent) }
+        LaunchedEffect(Unit) {
+            color.animateTo(Color(0x99000000), animationSpec = tween(1000))
+        }
         commonParentModifier =
-            commonParentModifier.addTutorialToLayout(
-                if(tutorialStep!=3)tutorialBoxOffset else Offset(0f,0f),
-                if(tutorialStep!=3)tutorialBoxSize else Size(0f,0f),
-                if(tutorialStep!=3)tutorialBoxCornerRadius else 0.dp
-            )
+            commonParentModifier.then(Modifier.drawWithContent {
+                drawContent()
+                val roundedPath = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = Rect(
+                                offset = boxOffset,
+                                size = boxSize,
+                            ),
+                            cornerRadius = CornerRadius(boxCornerRadius.toPx())
+                        )
+                    )
+                }
+                clipPath(roundedPath, clipOp = ClipOp.Difference) {
+                    drawRect(color.value)
+                }
+                val strokeWidth = 1.5F
+                val stroke = Stroke(
+                    width = strokeWidth.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
+                )
+                drawRoundRect(
+                    color = Color.White,
+                    style = stroke,
+                    cornerRadius = CornerRadius(boxCornerRadius.toPx()),
+                    topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
+                    size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
+                )
+            })
     }
 
 
@@ -380,37 +413,6 @@ private fun getSizeByCoordinates(coordinates: LayoutCoordinates) = Pair(
     coordinates.size.width.toFloat(),
     coordinates.size.height.toFloat()
 )
-
-private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCornerRadius: Dp) =
-    this.then(Modifier.drawWithContent {
-        drawContent()
-        val roundedPath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    rect = Rect(
-                        offset = boxOffset,
-                        size = boxSize,
-                    ),
-                    cornerRadius = CornerRadius(boxCornerRadius.toPx())
-                )
-            )
-        }
-        clipPath(roundedPath, clipOp = ClipOp.Difference) {
-            drawRect(SolidColor(Color(0x99000000)))
-        }
-        val strokeWidth = 1.5F
-        val stroke = Stroke(
-            width = strokeWidth.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
-        )
-        drawRoundRect(
-            color = Color.White,
-            style = stroke,
-            cornerRadius = CornerRadius(boxCornerRadius.toPx()),
-            topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
-            size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
-        )
-    })
 
 @Preview(showBackground = true)
 @Composable

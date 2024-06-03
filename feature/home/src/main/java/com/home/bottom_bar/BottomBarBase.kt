@@ -1,7 +1,9 @@
 package com.home.bottom_bar
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +39,6 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -49,7 +50,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -154,16 +154,50 @@ private fun BottomBarBase(
         .navigationBarsPadding()
         .background(color = MaterialTheme.colorScheme.background)
     if (tutorialStep in 0..3) {
+
+        val color = remember { Animatable(Color.Transparent) }
+        LaunchedEffect(Unit) {
+            color.animateTo(Color(0x99000000), animationSpec = tween(1000))
+        }
+
         val viewModelOffset3dStep = tutorialItemsParameters[3]?.offset ?: Pair(0f, 0f)
         val viewModelSize3dStep = tutorialItemsParameters[3]?.size ?: Pair(0f, 0f)
         val tutorialBoxOffset3d = Offset(viewModelOffset3dStep.first, viewModelOffset3dStep.second)
         val tutorialBoxSize3d = Size(viewModelSize3dStep.first, viewModelSize3dStep.second)
         val tutorialBoxCornerRadius3d = 50.dp
+        val boxOffset = if(tutorialStep==3)tutorialBoxOffset3d else Offset(0f,0f)
+        val boxSize = if(tutorialStep==3)tutorialBoxSize3d else Size(0f,0f)
+        val boxCornerRadius = if(tutorialStep==3)tutorialBoxCornerRadius3d else 0.dp
         commonParentModifier =
-            commonParentModifier.addTutorialToLayout(
-                if(tutorialStep==3)tutorialBoxOffset3d else Offset(0f,0f),
-                if(tutorialStep==3)tutorialBoxSize3d else Size(0f,0f),
-                if(tutorialStep==3)tutorialBoxCornerRadius3d else 0.dp
+            commonParentModifier.then(Modifier.drawWithContent {
+                drawContent()
+                val circlePath = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = Rect(
+                                offset = boxOffset,
+                                size = boxSize,
+                            ),
+                            cornerRadius = CornerRadius(boxCornerRadius.toPx())
+                        )
+                    )
+                }
+                clipPath(circlePath, clipOp = ClipOp.Difference) {
+                    drawRect(color.value)
+                }
+                val strokeWidth = 1.5F
+                val stroke = Stroke(
+                    width = strokeWidth.dp.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
+                )
+                drawRoundRect(
+                    color = Color.White,
+                    style = stroke,
+                    cornerRadius = CornerRadius(boxCornerRadius.toPx()),
+                    topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
+                    size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
+                )
+            }
             )
     }
     commonParentModifier = commonParentModifier.then(
@@ -261,38 +295,6 @@ private fun BottomBarBase(
         }
     }
 }
-
-private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCornerRadius: Dp) =
-    this.then(Modifier.drawWithContent {
-        drawContent()
-        val circlePath = Path().apply {
-            addRoundRect(
-                RoundRect(
-                    rect = Rect(
-                        offset = boxOffset,
-                        size = boxSize,
-                    ),
-                    cornerRadius = CornerRadius(boxCornerRadius.toPx())
-                )
-            )
-        }
-        clipPath(circlePath, clipOp = ClipOp.Difference) {
-            drawRect(SolidColor(Color(0x99000000)))
-        }
-        val strokeWidth = 1.5F
-        val stroke = Stroke(
-            width = strokeWidth.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
-        )
-        drawRoundRect(
-            color = Color.White,
-            style = stroke,
-            cornerRadius = CornerRadius(boxCornerRadius.toPx()),
-            topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
-            size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
-        )
-    })
-
 @Preview(heightDp = 100)
 @Composable
 private fun PreviewBase() {
