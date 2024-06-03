@@ -92,30 +92,37 @@ internal fun ScreenV3V4(
 
     var tutorialStep by remember { mutableIntStateOf(0) }
 
-    var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
-    var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
-    var tutorialBoxCornerRadius by remember { mutableStateOf(24.dp) }
+    val stepFromViewModel by viewModel.tutorialStep.collectAsState()
+    LaunchedEffect(stepFromViewModel) {
+        tutorialStep=stepFromViewModel
+    }
+
+    val tutorialItemsParameters by viewModel.tutorialItemsParameters.collectAsState()
+
 
     var arrowSize by remember { mutableStateOf(IntSize(0, 0)) }
-    var tutorialDialogSize by remember { mutableStateOf(IntSize(0, 0)) }
 
     var commonParentModifier = Modifier
         .fillMaxSize()
         .verticalScroll(state = scrollState)
         .statusBarsPadding()
-    if (tutorialStep in 1..4) commonParentModifier =
-        commonParentModifier.addTutorialToLayout(
-            tutorialBoxOffset,
-            tutorialBoxSize,
-            tutorialBoxCornerRadius
-        )
+    if (tutorialStep in 1..4) {
+        val viewModelSize = tutorialItemsParameters[tutorialStep-1]?.size ?: Pair(0f,0f)
+        val viewModelOffset = tutorialItemsParameters[tutorialStep-1]?.offset ?: Pair(0f,0f)
+        val tutorialBoxOffset  = Offset(viewModelOffset.first, viewModelOffset.second)
+        val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
+        val tutorialBoxCornerRadius = tutorialItemsParameters[tutorialStep-1]?.cornerRadius?.dp ?: 0.dp
+            commonParentModifier =
+            commonParentModifier.addTutorialToLayout(
+                tutorialBoxOffset,
+                tutorialBoxSize,
+                tutorialBoxCornerRadius
+            )
+    }
+
+
     commonParentModifier = commonParentModifier.then(Modifier.padding(horizontal = 16.dp))
 
-    val stepFromViewModel by viewModel.tutorialStep.collectAsState()
-
-    LaunchedEffect(stepFromViewModel) {
-        tutorialStep=stepFromViewModel
-    }
 
     Content {
         val toolbar = WindowInsets.systemBars.asPaddingValues().calculateTopPadding().dpToPx()
@@ -151,13 +158,13 @@ internal fun ScreenV3V4(
                                 )
                                 .clip(CircleShape)
                                 .onGloballyPositioned { coordinates ->
-                                    if (tutorialStep == 3) {
-                                        tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                        tutorialBoxOffset = Offset(
-                                            coordinates.positionInRoot().x,
-                                            coordinates.positionInRoot().y - toolbar
+                                    if (tutorialItemsParameters[2] == null) {
+                                        viewModel.setTutorialItemsParameters(
+                                            index = 2,
+                                            offset = Pair(coordinates.positionInRoot().x, coordinates.positionInRoot().y - toolbar),
+                                            size = getSizeByCoordinates(coordinates),
+                                            cornerRadius = 24
                                         )
-                                        tutorialBoxCornerRadius = 50.dp
                                     }
                                 }
                         )
@@ -217,13 +224,13 @@ internal fun ScreenV3V4(
                         readOnly = true,
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
-                                if (tutorialStep == 1) {
-                                    tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                    tutorialBoxOffset = Offset(
-                                        coordinates.positionInRoot().x,
-                                        coordinates.positionInRoot().y - toolbar
+                                if(tutorialItemsParameters[0]==null){
+                                    viewModel.setTutorialItemsParameters(
+                                        index = 0,
+                                        offset = Pair(coordinates.positionInRoot().x, coordinates.positionInRoot().y - toolbar),
+                                        size = getSizeByCoordinates(coordinates),
+                                        cornerRadius = 50
                                     )
-                                    tutorialBoxCornerRadius = 50.dp
                                 }
                             }
                     )
@@ -257,13 +264,13 @@ internal fun ScreenV3V4(
                     SocialsV4(
                         modifier = Modifier
                             .onGloballyPositioned { coordinates ->
-                                if (tutorialStep == 2) {
-                                    tutorialBoxSize = getSizeByCoordinates(coordinates)
-                                    tutorialBoxOffset = Offset(
-                                        coordinates.positionInRoot().x,
-                                        coordinates.positionInRoot().y - toolbar
+                                if(tutorialItemsParameters[1]==null){
+                                    viewModel.setTutorialItemsParameters(
+                                        index = 1,
+                                        offset = Pair(coordinates.positionInRoot().x, coordinates.positionInRoot().y - toolbar),
+                                        size = getSizeByCoordinates(coordinates),
+                                        cornerRadius = 24
                                     )
-                                    tutorialBoxCornerRadius = 24.dp
                                 }
                             }
                     )
@@ -274,6 +281,12 @@ internal fun ScreenV3V4(
                 NativeAdView()
             }
             if (tutorialStep in 1..4) {
+                val viewModelSize = tutorialItemsParameters[tutorialStep-1]?.size ?: Pair(0f,0f)
+                val viewModelOffset = tutorialItemsParameters[tutorialStep-1]?.offset ?: Pair(0f,0f)
+                val tutorialBoxOffset  = Offset(viewModelOffset.first, viewModelOffset.second)
+                val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
+                val tutorialBoxCornerRadius = tutorialItemsParameters[tutorialStep-1]?.cornerRadius?.dp ?: 0.dp
+                var tutorialDialogSize by remember { mutableStateOf(IntSize(0, 0)) }
                 val configuration = LocalConfiguration.current
                 val screenHeight = configuration.screenHeightDp.dp
                 val screenWidth = configuration.screenWidthDp.dp
@@ -299,6 +312,14 @@ internal fun ScreenV3V4(
                     else -> 0f
                 }
                 val tutorialStepDate = TutorialStepsDate.entries[tutorialStep - 1]
+                println("***TUTORIAL DIALOG***")
+                println("tutorialStep = $tutorialStep")
+                println("tutorialBoxSize = $tutorialBoxSize")
+                println("tutorialBoxOffset = $tutorialBoxOffset")
+                println("tutorialBoxCornerRadius = $tutorialBoxCornerRadius")
+                println("tutorialBoxWithTextY = $tutorialBoxWithTextY")
+                println("tutorialArrowX = $tutorialArrowX")
+                println("tutorialArrowY = $tutorialArrowY")
                 Image(
                     imageVector = ImageVector.vectorResource(id = tutorialStepDate.arrowRes),
                     contentDescription = null,
@@ -329,6 +350,7 @@ internal fun ScreenV3V4(
                     TutorialBoxWithText(tutorialStepDate) {
                         val isLastStep = tutorialStep == TutorialStepsDate.entries.size
                         viewModel.setTutorialStep(if (isLastStep) 0 else tutorialStep + 1)
+                        println("///////////////////////////////////")
                     }
                 }
             }
@@ -348,7 +370,7 @@ fun Float.pxToDp() = with(LocalDensity.current) { this@pxToDp.toDp() }
 @Composable
 fun Dp.dpToPx() = with(LocalDensity.current) { this@dpToPx.toPx() }
 
-private fun getSizeByCoordinates(coordinates: LayoutCoordinates) = Size(
+private fun getSizeByCoordinates(coordinates: LayoutCoordinates) = Pair(
     coordinates.size.width.toFloat(),
     coordinates.size.height.toFloat()
 )

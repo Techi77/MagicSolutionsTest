@@ -33,6 +33,9 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
 
     private val _tutorialStep = MutableStateFlow(0)
     val tutorialStep: StateFlow<Int> = _tutorialStep.asStateFlow()
+
+    private val _tutorialItemsParameters = MutableStateFlow(Array<TutorialItemsParameters?>(size = 4){ _ -> null })
+    val tutorialItemsParameters: StateFlow<Array<TutorialItemsParameters?>> = _tutorialItemsParameters.asStateFlow()
     init {
         Log.d(TAG, "init")
         subscribeToEvent()
@@ -49,6 +52,10 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
     fun setTutorialStep(step: Int) {
         println("setTutorialStep($step)")
         _tutorialStep.value = step
+    }
+
+    fun setTutorialItemsParameters(index: Int, offset: Pair<Float,Float>, size:Pair<Float,Float>, cornerRadius:Int) {
+        _tutorialItemsParameters.value[index] = TutorialItemsParameters(offset, size, cornerRadius)
     }
 
 
@@ -83,3 +90,4 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
         }
     }
 }
+data class TutorialItemsParameters(val offset: Pair<Float,Float>, val size:Pair<Float,Float>, val cornerRadius:Int)
