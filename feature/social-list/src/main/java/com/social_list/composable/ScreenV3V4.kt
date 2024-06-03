@@ -63,6 +63,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -74,10 +75,12 @@ import com.core.ui.composable.MagicMenuItem
 import com.core.ui.composable.input_link.GlobalInputLinkNew
 import com.core.ui.model.Social
 import com.core.ui.modifier.clickableSingle
+import com.core.ui.theme.MagicDownloaderTheme
 import com.social_list.SocialListEvent
 import com.social_list.SocialListViewModel
 import com.social_list.composable.tutorial.TutorialBoxWithText
 import com.social_list.composable.tutorial.TutorialStepsDate
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 internal fun ScreenV3V4(
@@ -381,11 +384,11 @@ private fun Modifier.addTutorialToLayout(boxOffset: Offset, boxSize: Size, boxCo
         )
     })
 
-/*@Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 private fun ScreenNewPreview() {
     MagicDownloaderTheme {
-        ScreenV3V4 ({},)
+        ScreenV3V4 ({}, koinViewModel())
     }
-}*/
+}
 
