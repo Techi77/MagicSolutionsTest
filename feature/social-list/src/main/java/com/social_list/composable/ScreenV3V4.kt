@@ -1,5 +1,6 @@
 package com.social_list.composable
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -77,6 +78,7 @@ import com.core.ui.composable.input_link.GlobalInputLinkNew
 import com.core.ui.model.Social
 import com.core.ui.modifier.clickableSingle
 import com.core.ui.theme.MagicDownloaderTheme
+import com.mvi.TutorialItemsParameters
 import com.social_list.SocialListEvent
 import com.social_list.SocialListViewModel
 import com.social_list.composable.tutorial.TutorialBoxWithText
@@ -108,53 +110,8 @@ internal fun ScreenV3V4(
         .verticalScroll(state = scrollState)
         .statusBarsPadding()
     if (tutorialStep in 0..3) {
-        val viewModelSize = tutorialItemsParameters[tutorialStep]?.size ?: Pair(0f, 0f)
-        val viewModelOffset = tutorialItemsParameters[tutorialStep]?.offset ?: Pair(0f, 0f)
-        val tutorialBoxOffset = Offset(viewModelOffset.first, viewModelOffset.second)
-        val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
-        val tutorialBoxCornerRadius =
-            tutorialItemsParameters[tutorialStep]?.cornerRadius?.dp ?: 0.dp
-        val boxOffset = if(tutorialStep!=3)tutorialBoxOffset else Offset(0f,0f)
-        val boxSize = if(tutorialStep!=3)tutorialBoxSize else Size(0f,0f)
-        val boxCornerRadius = if(tutorialStep!=3)tutorialBoxCornerRadius else 0.dp
-
-        val color = remember { Animatable(Color.Transparent) }
-        LaunchedEffect(Unit) {
-            color.animateTo(Color(0x99000000), animationSpec = tween(1000))
-        }
-        commonParentModifier =
-            commonParentModifier.then(Modifier.drawWithContent {
-                drawContent()
-                val roundedPath = Path().apply {
-                    addRoundRect(
-                        RoundRect(
-                            rect = Rect(
-                                offset = boxOffset,
-                                size = boxSize,
-                            ),
-                            cornerRadius = CornerRadius(boxCornerRadius.toPx())
-                        )
-                    )
-                }
-                clipPath(roundedPath, clipOp = ClipOp.Difference) {
-                    drawRect(color.value)
-                }
-                val strokeWidth = 1.5F
-                val stroke = Stroke(
-                    width = strokeWidth.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
-                )
-                drawRoundRect(
-                    color = Color.White,
-                    style = stroke,
-                    cornerRadius = CornerRadius(boxCornerRadius.toPx()),
-                    topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
-                    size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
-                )
-            })
+        commonParentModifier = addTutorialToModifier(tutorialItemsParameters, tutorialStep, commonParentModifier)
     }
-
-
     commonParentModifier = commonParentModifier.then(Modifier.padding(horizontal = 16.dp))
 
 
@@ -401,6 +358,61 @@ internal fun ScreenV3V4(
             if (scrollState.maxValue > 0) isShowLogo = false
         }
     }
+}
+
+@SuppressLint("ModifierFactoryExtensionFunction")
+@Composable
+private fun addTutorialToModifier(
+    tutorialItemsParameters: Array<TutorialItemsParameters?>,
+    tutorialStep: Int,
+    commonParentModifier: Modifier
+): Modifier {
+    var commonParentModifier1 = commonParentModifier
+    val viewModelSize = tutorialItemsParameters[tutorialStep]?.size ?: Pair(0f, 0f)
+    val viewModelOffset = tutorialItemsParameters[tutorialStep]?.offset ?: Pair(0f, 0f)
+    val tutorialBoxOffset = Offset(viewModelOffset.first, viewModelOffset.second)
+    val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
+    val tutorialBoxCornerRadius =
+        tutorialItemsParameters[tutorialStep]?.cornerRadius?.dp ?: 0.dp
+    val boxOffset = if (tutorialStep != 3) tutorialBoxOffset else Offset(0f, 0f)
+    val boxSize = if (tutorialStep != 3) tutorialBoxSize else Size(0f, 0f)
+    val boxCornerRadius = if (tutorialStep != 3) tutorialBoxCornerRadius else 0.dp
+
+    val color = remember { Animatable(Color.Transparent) }
+    LaunchedEffect(Unit) {
+        color.animateTo(Color(0x99000000), animationSpec = tween(1000))
+    }
+    commonParentModifier1 =
+        commonParentModifier1.then(Modifier.drawWithContent {
+            drawContent()
+            val roundedPath = Path().apply {
+                addRoundRect(
+                    RoundRect(
+                        rect = Rect(
+                            offset = boxOffset,
+                            size = boxSize,
+                        ),
+                        cornerRadius = CornerRadius(boxCornerRadius.toPx())
+                    )
+                )
+            }
+            clipPath(roundedPath, clipOp = ClipOp.Difference) {
+                drawRect(color.value)
+            }
+            val strokeWidth = 1.5F
+            val stroke = Stroke(
+                width = strokeWidth.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 6.dp.toPx()), 0f)
+            )
+            drawRoundRect(
+                color = Color.White,
+                style = stroke,
+                cornerRadius = CornerRadius(boxCornerRadius.toPx()),
+                topLeft = Offset(boxOffset.x - strokeWidth, boxOffset.y - strokeWidth),
+                size = Size(boxSize.width + strokeWidth * 2, boxSize.height + strokeWidth * 2)
+            )
+        })
+    return commonParentModifier1
 }
 
 @Composable
