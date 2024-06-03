@@ -85,7 +85,7 @@ internal fun ScreenV3V4(
 
     val isTutorialVisible = true
 
-    val tutorialStep by remember { mutableIntStateOf(4) }
+    var tutorialStep by remember { mutableIntStateOf(2) }
 
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
@@ -301,7 +301,10 @@ internal fun ScreenV3V4(
                         y = tutorialBoxWithTextY.dp
                     )
                 ) {
-                    TutorialBoxWithText(tutorialStepDate)
+                    TutorialBoxWithText(tutorialStepDate){
+                        val isLastStep = tutorialStep == TutorialStepsDate.entries.size
+                        tutorialStep = if(isLastStep) 0 else tutorialStep+1
+                    }
                 }
             }
 

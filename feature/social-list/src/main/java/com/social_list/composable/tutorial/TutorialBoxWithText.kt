@@ -27,7 +27,7 @@ import com.core.R
 import com.core.ui.composable.ActionButton
 
 @Composable
-fun TutorialBoxWithText(tutorialStep: TutorialStepsDate) {
+fun TutorialBoxWithText(tutorialStep: TutorialStepsDate, onClick: ()-> Unit) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -58,7 +58,7 @@ fun TutorialBoxWithText(tutorialStep: TutorialStepsDate) {
                 textAlign = TextAlign.Center,
             ),
             contentPadding = PaddingValues(horizontal = 24.dp),
-            onClick = {},
+            onClick = onClick,
             maxLines = 1,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
@@ -82,5 +82,5 @@ enum class TutorialStepsDate(
 @Preview
 @Composable
 fun MyViewPreview() {
-    TutorialBoxWithText(TutorialStepsDate.STEP_1)
+    TutorialBoxWithText(TutorialStepsDate.STEP_1){}
 }
