@@ -19,6 +19,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -56,8 +58,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.core.ui.theme.MagicDownloaderTheme
+import com.social_list.SocialListViewModel
+import com.social_list.navigation.socialListScreenRoute
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
@@ -83,14 +88,35 @@ internal fun BottomBarBase(
     val currentRoute = navBackStackEntry?.destination?.parent?.route ?: navBackStackEntry?.destination?.route
     val selectedRoute = getSelectedRoute(currentRoute)
 
-BottomBarBase(
-        items = items,
-        currentRoute = currentRoute,
-        selectedRoute = selectedRoute,
-        tabs = tabs,
-        isVisible = routeList.contains(selectedRoute) && isVisible,
-        onClick = onClick,
-    )
+    if(selectedRoute!=null && selectedRoute==socialListScreenRoute){
+        val backStackEntry = remember { navController.getBackStackEntry(socialListScreenRoute) }
+        val viewModel: SocialListViewModel = koinViewModel(viewModelStoreOwner = backStackEntry)
+        val stepFromViewModel by viewModel.tutorialStep.collectAsState()
+
+        BottomBarBase(
+            items = items,
+            currentRoute = currentRoute,
+            selectedRoute = selectedRoute,
+            tabs = tabs,
+            isVisible = routeList.contains(selectedRoute) && isVisible,
+            onClick = onClick,
+            stepFromViewModel = stepFromViewModel
+        )
+    } else {
+        BottomBarBase(
+            items = items,
+            currentRoute = currentRoute,
+            selectedRoute = selectedRoute,
+            tabs = tabs,
+            isVisible = routeList.contains(selectedRoute) && isVisible,
+            onClick = onClick,
+            stepFromViewModel = 0
+        )
+    }
+
+
+
+
 }
 
 @Composable
@@ -101,6 +127,7 @@ private fun BottomBarBase(
     tabs: Flow<List<Int>>,
     isVisible: Boolean,
     onClick: (item: AppBottomBarItem, currentRoute: String?) -> Unit,
+    stepFromViewModel: Int = 0
 ) {
     val tabsValue by tabs.collectAsStateWithLifecycle(initialValue = emptyList())
     val heightAnimation by animateDpAsState(
@@ -108,7 +135,7 @@ private fun BottomBarBase(
         label = "BottomBarHeightAnimation",
     )
 
-    val tutorialStep by remember { mutableIntStateOf(0) }
+    var tutorialStep by remember { mutableIntStateOf(0) }
 
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
@@ -128,6 +155,10 @@ private fun BottomBarBase(
             .padding(top = 1.dp)
             .background(color = MaterialTheme.colorScheme.onPrimary)
     )
+
+    LaunchedEffect(stepFromViewModel) {
+        tutorialStep=stepFromViewModel
+    }
 
     NavigationBar(
         containerColor = Color.Transparent,
