@@ -90,7 +90,7 @@ internal fun ScreenV3V4(
     val scrollState = rememberScrollState()
     var isShowLogo by remember { mutableStateOf(true) }
 
-    var tutorialStep by remember { mutableIntStateOf(0) }
+    var tutorialStep by remember { mutableIntStateOf(-1) }
 
     val stepFromViewModel by viewModel.tutorialStep.collectAsState()
     LaunchedEffect(stepFromViewModel) {
@@ -106,13 +106,13 @@ internal fun ScreenV3V4(
         .fillMaxSize()
         .verticalScroll(state = scrollState)
         .statusBarsPadding()
-    if (tutorialStep in 1..4) {
-        val viewModelSize = tutorialItemsParameters[tutorialStep - 1]?.size ?: Pair(0f, 0f)
-        val viewModelOffset = tutorialItemsParameters[tutorialStep - 1]?.offset ?: Pair(0f, 0f)
+    if (tutorialStep in 0..3) {
+        val viewModelSize = tutorialItemsParameters[tutorialStep]?.size ?: Pair(0f, 0f)
+        val viewModelOffset = tutorialItemsParameters[tutorialStep]?.offset ?: Pair(0f, 0f)
         val tutorialBoxOffset = Offset(viewModelOffset.first, viewModelOffset.second)
         val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
         val tutorialBoxCornerRadius =
-            tutorialItemsParameters[tutorialStep - 1]?.cornerRadius?.dp ?: 0.dp
+            tutorialItemsParameters[tutorialStep]?.cornerRadius?.dp ?: 0.dp
         commonParentModifier =
             commonParentModifier.addTutorialToLayout(
                 tutorialBoxOffset,
@@ -197,7 +197,7 @@ internal fun ScreenV3V4(
                         MagicMenu(
                             items = listOf(
                                 MagicMenuItem.Tutorial to {
-                                    viewModel.setTutorialStep(1)
+                                    viewModel.setTutorialStep(0)
                                 },
                                 MagicMenuItem.HomeManual to { },
                             )
@@ -290,10 +290,10 @@ internal fun ScreenV3V4(
 
                 NativeAdView()
             }
-            if (tutorialStep in 1..4) {
-                val viewModelSize = tutorialItemsParameters[tutorialStep - 1]?.size ?: Pair(0f, 0f)
+            if (tutorialStep in 0..3) {
+                val viewModelSize = tutorialItemsParameters[tutorialStep]?.size ?: Pair(0f, 0f)
                 val viewModelOffset =
-                    tutorialItemsParameters[tutorialStep - 1]?.offset ?: Pair(0f, 0f)
+                    tutorialItemsParameters[tutorialStep]?.offset ?: Pair(0f, 0f)
 
                 val tutorialBoxOffset = Offset(viewModelOffset.first, viewModelOffset.second)
                 val tutorialBoxSize = Size(viewModelSize.first, viewModelSize.second)
@@ -304,29 +304,29 @@ internal fun ScreenV3V4(
                 val screenWidth = configuration.screenWidthDp.dp
 
                 val tutorialBoxWithTextY = when (tutorialStep) {
-                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + arrowSize.height.toFloat()
+                    0, 1 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + arrowSize.height.toFloat()
                         .pxToDp() + 20.dp + 22.dp + toolbar.pxToDp()).value
 
-                    3 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp + toolbar.pxToDp()).value
-                    4 -> (screenHeight - (arrowSize.height + tutorialDialogSize.height).toFloat()
+                    2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 124.dp + toolbar.pxToDp()).value
+                    3 -> (screenHeight - (arrowSize.height + tutorialDialogSize.height).toFloat()
                         .pxToDp() - 20.dp - 22.dp - toolbar.pxToDp()).value
 
                     else -> 0f
                 }
                 val tutorialArrowX = when (tutorialStep) {
-                    1, 2, 4 -> (screenWidth / 2 - arrowSize.width.toFloat().pxToDp() / 2).value
-                    3 -> (tutorialBoxOffset.x + tutorialBoxSize.width).pxToDp().value
+                    0, 1, 3 -> (screenWidth / 2 - arrowSize.width.toFloat().pxToDp() / 2).value
+                    2 -> (tutorialBoxOffset.x + tutorialBoxSize.width).pxToDp().value
                     else -> 0f
                 }
                 val tutorialArrowY = when (tutorialStep) {
-                    1, 2 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp + toolbar.pxToDp()).value
-                    3 -> (tutorialBoxOffset.y + tutorialBoxSize.height / 2 + toolbar).pxToDp().value
-                    4 -> (screenHeight - arrowSize.height.toFloat()
+                    0, 1 -> ((tutorialBoxOffset.y + tutorialBoxSize.height).pxToDp() + 20.dp + toolbar.pxToDp()).value
+                    2 -> (tutorialBoxOffset.y + tutorialBoxSize.height / 2 + toolbar).pxToDp().value
+                    3 -> (screenHeight - arrowSize.height.toFloat()
                         .pxToDp() - 20.dp - toolbar.pxToDp()).value
 
                     else -> 0f
                 }
-                val tutorialStepDate = TutorialStepsDate.entries[tutorialStep - 1]
+                val tutorialStepDate = TutorialStepsDate.entries[tutorialStep]
                 Image(
                     imageVector = ImageVector.vectorResource(id = tutorialStepDate.arrowRes),
                     contentDescription = null,
@@ -339,8 +339,8 @@ internal fun ScreenV3V4(
                             y = tutorialArrowY.dp
                         )
                         .scale(
-                            scaleX = if (tutorialStep == 4) -1f else 1f,
-                            scaleY = if (tutorialStep == 4) -1f else 1f
+                            scaleX = if (tutorialStep == 3) -1f else 1f,
+                            scaleY = if (tutorialStep == 3) -1f else 1f
                         ),
                 )
                 Box(modifier = Modifier
@@ -355,8 +355,8 @@ internal fun ScreenV3V4(
                     )
                 ) {
                     TutorialBoxWithText(tutorialStepDate) {
-                        val isLastStep = tutorialStep == TutorialStepsDate.entries.size
-                        viewModel.setTutorialStep(if (isLastStep) 0 else tutorialStep + 1)
+                        val isLastStep = tutorialStep == TutorialStepsDate.entries.lastIndex
+                        viewModel.setTutorialStep(if (isLastStep) -1 else tutorialStep + 1)
                     }
                 }
             }

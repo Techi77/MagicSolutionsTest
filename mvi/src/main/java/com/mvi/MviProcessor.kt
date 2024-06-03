@@ -31,7 +31,7 @@ abstract class MviProcessor<S : ScreenState, E : ScreenEvent, SE : ScreenSingleE
     private val _singleEvent: MutableSharedFlow<SE> = MutableSharedFlow()
     val singleEvent: Flow<SE> = _singleEvent
 
-    private val _tutorialStep = MutableStateFlow(0)
+    private val _tutorialStep = MutableStateFlow(-1)
     val tutorialStep: StateFlow<Int> = _tutorialStep.asStateFlow()
 
     private val _tutorialItemsParameters = MutableStateFlow(Array<TutorialItemsParameters?>(size = 4){ _ -> null })

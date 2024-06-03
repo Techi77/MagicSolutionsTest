@@ -127,7 +127,7 @@ private fun BottomBarBase(
     tabs: Flow<List<Int>>,
     isVisible: Boolean,
     onClick: (item: AppBottomBarItem, currentRoute: String?) -> Unit,
-    stepFromViewModel: Int = 0
+    stepFromViewModel: Int = -1
 ) {
     val tabsValue by tabs.collectAsStateWithLifecycle(initialValue = emptyList())
     val heightAnimation by animateDpAsState(
@@ -135,7 +135,7 @@ private fun BottomBarBase(
         label = "BottomBarHeightAnimation",
     )
 
-    var tutorialStep by remember { mutableIntStateOf(0) }
+    var tutorialStep by remember { mutableIntStateOf(-1) }
 
     var tutorialBoxOffset by remember { mutableStateOf(Offset(0f, 0f)) }
     var tutorialBoxSize by remember { mutableStateOf(Size(0f, 0f)) }
@@ -146,7 +146,7 @@ private fun BottomBarBase(
         .background(color = MaterialTheme.colorScheme.onPrimary)
         .navigationBarsPadding()
         .background(color = MaterialTheme.colorScheme.background)
-    if (tutorialStep in 1..4) commonParentModifier =
+    if (tutorialStep in 0..3) commonParentModifier =
         commonParentModifier.addTutorialToLayout(tutorialBoxOffset, tutorialBoxSize, tutorialBoxCornerRadius)
     commonParentModifier = commonParentModifier.then(
         Modifier
@@ -224,7 +224,7 @@ private fun BottomBarBase(
                 selected = selectedRoute == item.route,
                 onClick = { onClick.invoke(item, currentRoute) },
                 modifier = Modifier.onGloballyPositioned { coordinates ->
-                    if (tutorialStep == 4 && item == AppBottomBarItem.DownloadList) {
+                    if (tutorialStep == 3 && item == AppBottomBarItem.DownloadList) {
                         tutorialBoxSize = Size(
                             coordinates.size.height.toFloat()-5F,
                             coordinates.size.height.toFloat()-5F

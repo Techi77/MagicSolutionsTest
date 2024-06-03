@@ -215,8 +215,8 @@
 
     <string name="home_manual">Home manual</string>
 
-    <string name="tutorial_step_1">Easily find and save any video from the web!</string>
-    <string name="tutorial_step_2">Download videos from social media &amp; popular sites hassle-free!</string>
-    <string name="tutorial_step_3">Access blocked sites in your country using proxies</string>
-    <string name="tutorial_step_4">Access your downloaded videos here</string>
+    <string name="tutorial_step_0">Easily find and save any video from the web!</string>
+    <string name="tutorial_step_1">Download videos from social media &amp; popular sites hassle-free!</string>
+    <string name="tutorial_step_2">Access blocked sites in your country using proxies</string>
+    <string name="tutorial_step_3">Access your downloaded videos here</string>
 </resources>
